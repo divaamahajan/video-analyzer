@@ -15,8 +15,8 @@ from collections import deque
 from scipy import stats
 
 
-class SimpleVisualAnalyzer:
-    """Simplified visual analysis using OpenCV and basic computer vision"""
+class OpenCVAnalyzer:
+    """OpenCV-based visual analysis using traditional computer vision techniques"""
     
     def __init__(self):
         """Initialize visual analysis components"""
@@ -35,15 +35,44 @@ class SimpleVisualAnalyzer:
         height, width = frame.shape[:2]
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
-        # Initialize frame analysis
+        # Initialize frame analysis with default values
         frame_analysis = {
             'frame_idx': frame_idx,
             'timestamp': frame_idx / 30.0,
-            'body_posture': {},
-            'facial_expressions': {},
-            'gestures': {},
-            'spatial_awareness': {},
-            'engagement_metrics': {}
+            'body_posture': {
+                'posture_score': 0.0,
+                'sitting_standing': 'unknown',
+                'leaning_direction': 'neutral',
+                'slouching_detected': False,
+                'shoulder_alignment': 0.0,
+                'head_position': 'neutral'
+            },
+            'facial_expressions': {
+                'smile_intensity': 0.0,
+                'eye_contact_quality': 0.0,
+                'blink_rate': 0.0,
+                'facial_symmetry': 0.0,
+                'mouth_tension': 0.0,
+                'overall_expression': 'neutral'
+            },
+            'gestures': {
+                'hand_gesture_frequency': 0.0,
+                'gesture_size': 'small',
+                'hand_positions': 'unknown',
+                'gesture_smoothness': 0.0
+            },
+            'spatial_awareness': {
+                'distance_from_camera': 'unknown',
+                'centering_score': 0.0,
+                'space_usage': 'limited',
+                'frame_occupancy': 0.0
+            },
+            'engagement_metrics': {
+                'overall_engagement_score': 0.0,
+                'expressiveness_level': 'low',
+                'energy_score': 0.0,
+                'confidence_indicators': []
+            }
         }
         
         # 1. Face Detection and Analysis
@@ -81,6 +110,11 @@ class SimpleVisualAnalyzer:
             
             # Update tracking
             self._update_histories(frame_analysis, face)
+        else:
+            # No face detected - keep default values but calculate basic engagement
+            frame_analysis['engagement_metrics'] = self._calculate_engagement_metrics_simple(
+                frame_analysis
+            )
         
         return frame_analysis
     
@@ -384,8 +418,8 @@ class SimpleVisualAnalyzer:
         if not analyses:
             return {}
         
-        # Filter out frames without face detection
-        valid_analyses = [a for a in analyses if a['facial_expressions']['smile_intensity'] >= 0]
+        # Filter out frames without face detection (all frames should have smile_intensity now)
+        valid_analyses = [a for a in analyses if 'facial_expressions' in a and 'smile_intensity' in a['facial_expressions']]
         
         if not valid_analyses:
             return {'error': 'No valid face detections'}

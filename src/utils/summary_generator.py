@@ -20,10 +20,10 @@ def print_pose_summary(analysis_results):
     
     # Head movement flags
     print("\n--- Head Movement ---")
-    nod_count = sum(1 for result in analysis_results if result['behaviors']['head_nod_shake']['nod'])
-    shake_count = sum(1 for result in analysis_results if result['behaviors']['head_nod_shake']['shake'])
-    forward_count = sum(1 for result in analysis_results if result['behaviors']['head_forward_back']['head_forward'])
-    back_count = sum(1 for result in analysis_results if result['behaviors']['head_forward_back']['head_back'])
+    nod_count = sum(1 for result in analysis_results if result['behaviors']['head_nod_shake'] == 'nod')
+    shake_count = sum(1 for result in analysis_results if result['behaviors']['head_nod_shake'] == 'shake')
+    forward_count = sum(1 for result in analysis_results if result['behaviors']['head_forward_back'] == 'forward')
+    back_count = sum(1 for result in analysis_results if result['behaviors']['head_forward_back'] == 'back')
     
     print(f"Head Nod: {nod_count}/{len(analysis_results)} frames ({nod_count/len(analysis_results)*100:.1f}%)")
     print(f"Head Shake: {shake_count}/{len(analysis_results)} frames ({shake_count/len(analysis_results)*100:.1f}%)")
@@ -35,13 +35,7 @@ def print_pose_summary(analysis_results):
                  'hand_touching_face', 'hands_in_pockets', 'gesturing_while_speaking']
     print("\n--- Arm & Hand Positions ---")
     for flag in arm_flags:
-        if flag == 'hand_touching_face':
-            count = sum(1 for result in analysis_results if result['behaviors'][flag]['any_hand_touching_face'])
-        elif flag == 'hands_in_pockets':
-            count = sum(1 for result in analysis_results if result['behaviors'][flag]['any_hand_in_pocket'])
-        else:
-            count = sum(1 for result in analysis_results if result['behaviors'][flag])
-        
+        count = sum(1 for result in analysis_results if result['behaviors'][flag])
         percentage = count/len(analysis_results)*100 if analysis_results else 0
         print(f"{flag.replace('_', ' ').title()}: {count}/{len(analysis_results)} frames ({percentage:.1f}%)")
     
@@ -57,7 +51,11 @@ def print_pose_summary(analysis_results):
     print("\n--- Energy & Movement ---")
     energy_levels = {}
     for result in analysis_results:
-        level = result['behaviors']['energy_level']
+        engagement = result['behaviors'].get('engagement_level', {})
+        if isinstance(engagement, dict):
+            level = engagement.get('engagement_level', 'unknown')
+        else:
+            level = 'unknown'
         energy_levels[level] = energy_levels.get(level, 0) + 1
     
     for level, count in energy_levels.items():
@@ -66,13 +64,15 @@ def print_pose_summary(analysis_results):
     
     # Gaze direction
     print("\n--- Gaze Direction ---")
-    looking_at_camera = sum(1 for result in analysis_results if result['behaviors']['gaze_direction']['looking_at_camera'])
-    looking_away = sum(1 for result in analysis_results if result['behaviors']['gaze_direction']['looking_away'])
+    looking_at_camera = sum(1 for result in analysis_results 
+                          if result['behaviors'].get('eye_contact', {}).get('gaze_direction') == 'direct')
+    looking_away = sum(1 for result in analysis_results 
+                      if result['behaviors'].get('eye_contact', {}).get('gaze_direction') in ['left', 'right'])
     print(f"Looking At Camera: {looking_at_camera}/{len(analysis_results)} frames ({looking_at_camera/len(analysis_results)*100:.1f}%)")
     print(f"Looking Away: {looking_away}/{len(analysis_results)} frames ({looking_away/len(analysis_results)*100:.1f}%)")
     
-    # Repetitive patterns
-    repetitive_count = sum(1 for result in analysis_results if result['behaviors']['repetitive_fidgeting'])
+    # Repetitive patterns (using fidgeting as proxy)
+    repetitive_count = sum(1 for result in analysis_results if result['behaviors'].get('fidgeting', False))
     print(f"\nRepetitive Fidgeting: {repetitive_count}/{len(analysis_results)} frames ({repetitive_count/len(analysis_results)*100:.1f}%)")
     
     # Average movement magnitude

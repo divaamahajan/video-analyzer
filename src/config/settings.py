@@ -6,7 +6,7 @@ class Config:
     """Main configuration class"""
     
     # Video settings
-    VIDEO_PATH = "input_video.mp4"
+    VIDEO_PATH = "resources/obama.mp4"
     FRAME_INTERVAL = 1  # Process every frame (set to 5 for sampling)
     
     # Pose detection settings

@@ -10,15 +10,15 @@ Comprehensive video analysis system with modular components:
 """
 
 # Import main analyzers for easy access
-from .visual import extract_frames, SimpleVisualAnalyzer, PoseAnalyzer
+from .visual import extract_frames, OpenCVAnalyzer, MoveNetAnalyzer
 from .audio import AudioProcessor, AudioAnalyzer
 from .text import TranscriptionService, TranscriptionAnalyzer, PaceAnalyzer, PronunciationAnalyzer, SentimentAnalyzer, ContentAnalyzer
 
 __all__ = [
     # Visual analysis
     'extract_frames',
-    'SimpleVisualAnalyzer',
-    'PoseAnalyzer',
+    'OpenCVAnalyzer',
+    'MoveNetAnalyzer',
     
     # Audio analysis
     'AudioProcessor',
